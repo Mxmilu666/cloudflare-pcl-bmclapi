@@ -4,4 +4,4 @@
 
 因为国内速度堪忧，建议优选后使用
 
-此项目由 PHP版([@Silverteal](https://github.com/Silverteal)) 移植而来
+此项目由 PHP 版 ([Silverteal/oba-bd](https://github.com/Silverteal/oba-bd)) 移植而来
