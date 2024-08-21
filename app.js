@@ -32,7 +32,7 @@ app.get('/', async (req, res) => {
         <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <local:MyCard Title="OpenBMCLAPI DashBoard on PCL2" Margin="0,0,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+    <local:MyCard Title="OpenBMCLAPI DashBoard on PCL" Margin="0,0,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
         <TextBlock Margin="25,12,20,10" HorizontalAlignment="Right">
             ${genTime} (UTC+8)
         </TextBlock>
