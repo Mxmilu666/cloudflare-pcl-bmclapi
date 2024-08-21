@@ -6,4 +6,4 @@
 
 Express 版请看此项目的 ``nodejs-express``  分支
 
-此项目由 PHP版([@Silverteal](https://github.com/Silverteal)) 移植而来
+此项目由 PHP 版 ([Silverteal/oba-bd](https://github.com/Silverteal/oba-bd)) 移植而来
