@@ -4,4 +4,6 @@
 
 因为国内速度堪忧，建议优选后使用
 
+Express 版请看此项目的 ``nodejs-express``  分支
+
 此项目由 PHP版([@Silverteal](https://github.com/Silverteal)) 移植而来
