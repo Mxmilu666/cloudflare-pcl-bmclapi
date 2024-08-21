@@ -22,7 +22,7 @@ app.get('/', async (req, res) => {
     const xml = `
 <Grid>
     <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="0.8*" />
         <ColumnDefinition Width="1*" />
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
@@ -32,7 +32,7 @@ app.get('/', async (req, res) => {
         <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <local:MyCard Title="OpenBMCLAPI DashBoard on PCL" Margin="0,0,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+    <local:MyCard Title="OpenBMCLAPI DashBoard" Margin="0,0,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
         <TextBlock Margin="25,12,20,10" HorizontalAlignment="Right">
             ${genTime} (UTC+8)
         </TextBlock>
@@ -93,7 +93,6 @@ app.get('/', async (req, res) => {
 </Grid>
     `;
 
-    res.set('Content-Type', 'application/xml');
     // 发送 XML
     res.send(xml);
   } catch (error) {
