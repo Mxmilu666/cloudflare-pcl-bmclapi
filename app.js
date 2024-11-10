@@ -1,67 +1,77 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const port = 9000;
 
 // handle
 async function handleRequest(request, response) {
-    const url = new URL(request.url, `http://${request.headers.host}`);
-    const userAgent = request.headers['user-agent'] || '';
-  
-    if (!userAgent.startsWith('PCL2/')) {
-      response.redirect('https://github.com/Mxmilu666/cloudflare-pcl-bmclapi', 302);
-      return false;
-    }
-  
-    if (url.pathname === '/version') {
-      response.status(404).send('');
-      return false;
-    }
-  
-    return true;
+  const url = new URL(request.url, `http://${request.headers.host}`);
+  const userAgent = request.headers["user-agent"] || "";
+
+  if (!userAgent.startsWith("PCL2/")) {
+    response.redirect(
+      "https://github.com/Mxmilu666/cloudflare-pcl-bmclapi",
+      302
+    );
+    return false;
   }
+
+  if (url.pathname === "/version") {
+    response.status(404).send("");
+    return false;
+  }
+
+  return true;
+}
 
 // 转换字节
 function formatBytes(bytes) {
-    const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    let index = 0;
+  const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  let index = 0;
 
-    while (bytes >= 1024 && index < units.length - 1) {
-        bytes /= 1024;
-        index++;
-    }
+  while (bytes >= 1024 && index < units.length - 1) {
+    bytes /= 1024;
+    index++;
+  }
 
-    return `${bytes.toFixed(2)} ${units[index]}`;
+  return `${bytes.toFixed(2)} ${units[index]}`;
 }
 
 // 转换请求
 function formatRequests(requests) {
-    const units = ['', '万', '百万', '千万', '亿'];
-    let index = 0;
+  const units = ["", "万", "百万", "千万", "亿"];
+  let index = 0;
 
-    while (requests >= 10000 && index < units.length - 1) {
-        requests /= 10000;
-        index++;
-    }
+  while (requests >= 10000 && index < units.length - 1) {
+    requests /= 10000;
+    index++;
+  }
 
-    return `${requests.toFixed(2)}${units[index]}`;
+  return `${requests.toFixed(2)}${units[index]}`;
 }
-app.get('/', async (req, res) => {
+
+app.get("/", async (req, res) => {
   const shouldContinue = await handleRequest(req, res);
   if (!shouldContinue) return;
-  
-  const timezone = 'Asia/Shanghai';
+
+  const timezone = "Asia/Shanghai";
 
   try {
-    const dashboardResponse = await fetch('https://bd.bangbang93.com/openbmclapi/metric/dashboard');
+    const dashboardResponse = await fetch(
+      "https://bd.bangbang93.com/openbmclapi/metric/dashboard"
+    );
     const dashboardData = await dashboardResponse.json();
 
-    const rankResponse = await fetch('https://bd.bangbang93.com/openbmclapi/metric/rank');
+    const rankResponse = await fetch(
+      "https://bd.bangbang93.com/openbmclapi/metric/rank"
+    );
     const rankData = await rankResponse.json();
 
-    const rankcard = rankData.slice(0, 5).map((entry, index) => {
+    const rankcard = rankData
+      .slice(0, 5)
+      .map((entry, index) => {
         const name = entry.name;
         const bytes = formatBytes(entry.metric.bytes);
-        const hits =  formatRequests(entry.metric.hits);
+        const hits = formatRequests(entry.metric.hits);
         const sponsorurl = `https://bd.bangbang93.com/pages/rank/sponsor/${entry._id}?type=cluster`;
         return `
         <local:MyListItem  
@@ -72,9 +82,10 @@ app.get('/', async (req, res) => {
             EventData="${sponsorurl}" 
             Type="Clickable" />
         `;
-      }).join('\n');
+      })
+      .join("\n");
 
-    const genTime = new Date().toLocaleString('zh-CN', { timeZone: timezone });
+    const genTime = new Date().toLocaleString("zh-CN", { timeZone: timezone });
     const load = (dashboardData.load * 100).toFixed(2);
     const curNodes = dashboardData.currentNodes;
     const curBandwidth = dashboardData.currentBandwidth.toFixed(2);
@@ -158,10 +169,12 @@ app.get('/', async (req, res) => {
     <local:MyCard Title="节点排行榜" CanSwap="True" Margin="0,0,0,4" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">
         <StackPanel Margin="25,40,23,15">
         <local:MyHint 
-            Margin="-5,2,-5,8" 
+            Margin="0,0,0,10" 
             IsWarn="False"
             Text="当前只展示节点排行榜前五名" />
         ${rankcard}
+        <local:MyButton Margin="0,0,10,0" Height="35" ColorType="Highlight"
+            Text="打开完整排行榜" EventType="打开帮助" EventData="http://localhost:9000/rank.json" />
         </StackPanel>
     </local:MyCard>
 
@@ -172,8 +185,79 @@ app.get('/', async (req, res) => {
     res.send(xml);
   } catch (error) {
     console.error(error);
-    res.status(500).send('An error occurred while fetching data.');
+    res.status(500).send("An error occurred while fetching data.");
   }
+});
+
+app.get("/rank.xaml", async (req, res) => {
+  const shouldContinue = await handleRequest(req, res);
+  if (!shouldContinue) return;
+
+  try {
+    const rankResponse = await fetch(
+      "https://bd.bangbang93.com/openbmclapi/metric/rank"
+    );
+    const rankData = await rankResponse.json();
+
+    const rankcard = rankData
+      .map((entry, index) => {
+        const name = entry.name;
+        const bytes = formatBytes(entry.metric?.bytes || 0);
+        const hits = formatRequests(entry.metric?.hits || 0);
+        const sponsorurl = `https://bd.bangbang93.com/pages/rank/sponsor/${entry._id}?type=cluster`;
+        const logo = entry.isEnabled
+          ? "pack://application:,,,/images/Blocks/RedstoneLampOn.png"
+          : "pack://application:,,,/images/Blocks/RedstoneLampOff.png";
+
+        return `
+        <local:MyListItem  
+            Logo="${logo}"
+            Margin="-5,2,-5,8"
+            Title="#${index + 1} ${name}" 
+            Info="当日流量：${bytes} 当日请求数：${hits}"
+            EventType="打开网页" 
+            EventData="${sponsorurl}" 
+            Type="Clickable" />
+        `;
+      })
+      .join("\n");
+
+    const xml = `
+  <Grid>
+      <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="0.8*" />
+          <ColumnDefinition Width="1*" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+  
+      <local:MyCard Title="节点排行榜" CanSwap="True" Margin="0,0,0,4" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">
+          <StackPanel Margin="25,40,23,15">
+          <local:MyHint 
+              Margin="0,0,0,10" 
+              IsWarn="False"
+              Text="默认只展示最近7天内有过活动的节点" />
+          ${rankcard}
+          </StackPanel>
+      </local:MyCard>
+  
+  </Grid>
+      `;
+
+    // 发送 XML
+    res.send(xml);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching data.");
+  }
+});
+
+app.get('/rank.json', (req, res) => {
+    res.json({
+      Title: "OpenBMCLAPI 节点排行榜",
+      Description: "OpenBMCLAPI 完整节点排行榜"
+    });
 });
 
 app.listen(port, () => {
