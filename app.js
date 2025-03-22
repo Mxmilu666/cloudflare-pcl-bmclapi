@@ -49,6 +49,20 @@ function formatRequests(requests) {
   return `${requests.toFixed(2)}${units[index]}`;
 }
 
+// 字符串安全转换
+function escapeForXaml(str) {
+    const escapeMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&apos;'
+      };
+      
+      return str.replaceAll(/&/g, '&amp;')
+               .replaceAll(/[<>"']/g, char => escapeMap[char]);
+}
+
 app.get("/", async (req, res) => {
   const shouldContinue = await handleRequest(req, res);
   if (!shouldContinue) return;
@@ -69,7 +83,7 @@ app.get("/", async (req, res) => {
     const rankcard = rankData
       .slice(0, 5)
       .map((entry, index) => {
-        const name = entry.name;
+        const name = escapeForXaml(entry.name);
         const bytes = formatBytes(entry.metric.bytes);
         const hits = formatRequests(entry.metric.hits);
         const sponsorurl = `https://bd.bangbang93.com/pages/rank/sponsor/${entry._id}?type=cluster`;
@@ -201,7 +215,7 @@ app.get("/rank.xaml", async (req, res) => {
 
     const rankcard = rankData
       .map((entry, index) => {
-        const name = entry.name;
+        const name = escapeForXaml(entry.name);
         const bytes = formatBytes(entry.metric?.bytes || 0);
         const hits = formatRequests(entry.metric?.hits || 0);
         const sponsorurl = `https://bd.bangbang93.com/pages/rank/sponsor/${entry._id}?type=cluster`;
